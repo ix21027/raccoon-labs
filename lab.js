@@ -1,32 +1,33 @@
 var _ = require('lodash'); 
 
 function Review(data = {}){
-    const {ID, author, date, comment, rating} = data;
-    this.ID = ID,
-    this.author =  author,
+    let {ID, author, date, comment, rating} = data;
+    let {service, price, value, quality} = rating;
+    this.ID = ID || '',
+    this.author =  author || '',
     this.date = date, 
-    this.comment = comment, 
+    this.comment = comment || '', 
     this.rating = {
-        service: rating.service, 
-        price: rating.price, 
-        value:  rating.value, 
-        quality: rating.quality
+        service: service || 0, 
+        price: price || 0, 
+        value:  value || 0, 
+        quality: quality || 0
     }
 }
 
 function Product(params = { }){
     let {sizes, name, description, price, brand, quantity, date, reviews, images, activeSize, ID} = params
-    this.sizes       = sizes;
-    this.name        = name;
-    this.description = description;
-    this.price       = +price;
-    this.brand       = brand;
-    this.quantity    = +quantity;
-    this.date        = date;
-    this.reviews     = reviews;
-    this.images      = images;
-    this.activeSize  = activeSize;
-    this.ID          = ID; 
+    this.sizes       = sizes || [];
+    this.name        = name || '';
+    this.description = description || '';
+    this.price       = +price || 1;
+    this.brand       = brand || '';
+    this.quantity    = +quantity || 1;
+    this.date        = date || new Date();
+    this.reviews     = reviews || [];
+    this.images      = images || [];
+    this.activeSize  = activeSize || '';
+    this.ID          = ID || (+new Date()+"" ); 
     
     let getProps = ["Name", "Description", "Price",
                     "ID", "Brand", "Sizes", "ActiveSize",
@@ -64,34 +65,8 @@ function Product(params = { }){
     this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id)
 
     this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that)
-    this.getAverageRating = (key) => _.meanBy(this.reviews, r => r.rating[key])
+    this.getAverageRating = () => ['service', 'price', 'value', 'quality'].reduce((o, key) => ({ ...o, [key]:  _.meanBy(this.reviews, r => r.rating[key])}), {})
 }
-
-let data = {
-                name: "Lodka", description: "Veslovat' ochen' veselo", price: 900, brand: "LodDka", quantity: 5, date: new Date(),
-                reviews:[{ID:1, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:4, value: 10, quality: 2} },
-                         new Review({ID:2, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:8, value: 10, quality: 2} })             
-                        ],
-                images: ["url/img1", "url/img2"], activeSize: "",
-                sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], ID: (+new Date()+"" )
-            }
-
-let p = new Product(data);
-
-console.log(p.getName());
-console.log(p.getDescription());
-console.log(p.getSizes());
-console.log(p.getQuantity());
-console.log(p.getReviewByID(1).comment);
-console.log(p.getImage("url/img1"));
-console.log(p.addSize("XXS"));
-console.log(p.getSizes());
-console.log(p.setActiveSize('XS'));
-console.log(p.getActiveSize());
-console.log(p.deleteSize("XS"));
-console.log(p.getSizes());
-console.log(p.getAverageRating('price'));
-
 
 let searchProducts = (products, query) => {
     products.filter(p => p.getName.includes(query)  || p.getDescription.includes(query))
