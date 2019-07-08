@@ -1,4 +1,4 @@
-var _ = require('lodash'); 
+import { meanBy } from 'lodash'; 
 
 function Review(data = {}){
     let {ID, author, date, comment, rating} = data;
@@ -29,47 +29,40 @@ function Product(params = { }){
     this.activeSize  = activeSize || '';
     this.ID          = ID || (+new Date()+"" ); 
     
-    let getProps = ["Name", "Description", "Price",
-                    "ID", "Brand", "Sizes", "ActiveSize",
-                    "Quantity", "Date", "Reviews", "Images"];  
-    
     //Get Props def
-    let defineGetProps = (properties = getProps) => {
-        for(let prop of properties) 
-            Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] });
-    }
-    defineGetProps();
-    
+    let getProps = ["Name", "Description", "Price", "ID", "Brand", "Sizes", "ActiveSize", "Quantity", "Date", "Reviews", "Images"]
+    getProps.map(prop =>
+        Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] })
+    );  
+
     this.getReviewByID = (id) => this.reviews.find(r => r.ID === id);
     this.getImage = (imgName) => imgName ? this.images.find(img => img === imgName) : this.images[0];
     
-    //Add props def
-    let defineAddProps = (properties = ["Sizes", "Reviews"]) => {
-        for(let prop of properties) 
-            Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => this[prop.toLowerCase()].includes(el) ? this[prop.toLowerCase()] : this[prop.toLowerCase()].push(el) });
-    }
-    defineAddProps();
-    
-    let setProps = ["ActiveSize", "Date", "Brand", "Price", "Description", "Name"]          
-    //Set props def
-    let defineSetProps = (properties = setProps) => {
-        for(let prop of properties){
-            Object.defineProperty(this, "set"+prop, { value: (el) => this[prop.toLowerCase()] = el });
-        }
-    }
-    defineSetProps();
-    
+    //Add props defining
+    ["Sizes", "Reviews"].map(prop => 
+        Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => this[prop.toLowerCase()].includes(el) 
+                                                                            ? this[prop.toLowerCase()] 
+                                                                            : this[prop.toLowerCase()].push(el) })
+    );
+            
+    //Set props defining
+    ["Date", "Brand", "Description", "Name"].map(prop =>
+            Object.defineProperty(this, "set"+prop, { value: (el) => this[prop.toLowerCase()] = el })
+    );
     this.setActiveSize = (el) => this.sizes.includes(el) ? this.activeSize = el : false
-    this.setPrice = (el) => parseFloat(el) ? this.price = el : false
+    this.setPrice      = (el) => parseFloat(el) ? this.price = el : false
     
-    this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id)
-
-    this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that)
-    this.getAverageRating = () => ['service', 'price', 'value', 'quality'].reduce((o, key) => ({ ...o, [key]:  _.meanBy(this.reviews, r => r.rating[key])}), {})
+    this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id);
+    this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that);
+    
+    this.getAverageRating = () => {
+        return ['service', 'price', 'value', 'quality'].reduce((o, key) => 
+            ({ ...o, [key]:  meanBy(this.reviews, r => r.rating[key])}), {}
+        );
+    }
 }
-
 let searchProducts = (products, query) => {
-    products.filter(p => p.getName.includes(query)  || p.getDescription.includes(query))
+    products.filter(p => p.getName.includes(query)  || p.getDescription.includes(query));
 }
 
 let sortProducts = (products, sortRule = "price") => {
