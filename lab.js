@@ -75,6 +75,6 @@ let searchProducts = (products, query) => {
 let sortProducts = (products, sortRule = "price") => {
     if (sortRule === "price")
         products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]))
-    if (sortRule == "name" || sortRule === "id")
+    if (sortRule == "name" || sortRule === "ID")
         products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1)
 }
