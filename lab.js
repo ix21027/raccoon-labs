@@ -1,9 +1,19 @@
 var _ = require('lodash'); 
 
-function Product(params = { name: "", description: "", price: 1, brand: "", quantity: 1, 
-                            date: new Date(), reviews: [], images: [], activeSize: "",
-                            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], ID: (+new Date()+"" )}
-                ){
+function Review(data = {}){
+    this.ID = data.ID,
+    this.author =  data.author,
+    this.date = data.date, 
+    this.comment = data.comment, 
+    this.rating = {
+        service: data.rating.service, 
+        price: data.rating.price, 
+        value:  data.rating.value, 
+        quality: data.rating.quality
+    }
+}
+
+function Product(params = { }){
     this.sizes       = params.sizes;
     this.name        = params.name;
     this.description = params.description;
@@ -24,7 +34,7 @@ function Product(params = { name: "", description: "", price: 1, brand: "", quan
     //Get Props def
     let defineGetProps = (properties = getProps) => {
         for(let prop of properties) 
-        Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] });
+            Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] });
     }
     defineGetProps();
     
@@ -34,7 +44,7 @@ function Product(params = { name: "", description: "", price: 1, brand: "", quan
     //Add props def
     let defineAddProps = (properties = ["Sizes", "Reviews"]) => {
         for(let prop of properties) 
-            Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => this[prop.toLowerCase()].includes(el) ? this[prop.toLowerCase()] : this[prop.toLowerCase()].push(el)  });
+            Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => this[prop.toLowerCase()].includes(el) ? this[prop.toLowerCase()] : this[prop.toLowerCase()].push(el) });
     }
     defineAddProps();
     
@@ -52,16 +62,19 @@ function Product(params = { name: "", description: "", price: 1, brand: "", quan
     this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id)
 
     this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that)
-    this.getAverageRating = () => _.meanBy(this.reviews, r => r.rating.value)
+    this.getAverageRating = (key) => _.meanBy(this.reviews, r => r.rating[key])
 }
-let args = {
+
+let data = {
                 name: "Lodka", description: "Veslovat' ochen' veselo", price: 900, brand: "LodDka", quantity: 5, date: new Date(),
-                reviews:[{ID:1, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:43, value: 10, quality: 2} }],
+                reviews:[{ID:1, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:4, value: 10, quality: 2} },
+                         {ID:2, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:8, value: 10, quality: 2} }             
+                        ],
                 images: ["url/img1", "url/img2"], activeSize: "",
                 sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], ID: (+new Date()+"" )
             }
 
-let p = new Product(args);
+let p = new Product(data);
 
 console.log(p.getName());
 console.log(p.getDescription());
@@ -71,14 +84,17 @@ console.log(p.getReviewByID(1).comment);
 console.log(p.getImage("url/img1"));
 console.log(p.addSize("XXS"));
 console.log(p.getSizes());
+console.log(p.setActiveSize('XS'));
+console.log(p.getActiveSize());
 console.log(p.deleteSize("XS"));
 console.log(p.getSizes());
-console.log(p.getAverageRating());
+console.log(p.getAverageRating('price'));
 
 
 let searchProducts = (products, query) => {
     products.filter(p => p.getName.includes(query)  || p.getDescription.includes(query))
 }
+
 let sortProducts = (products, sortRule = "price") => {
     if (sortRule === "price" || sortRule === "id")
         products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]))
