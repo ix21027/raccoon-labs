@@ -32,7 +32,6 @@ function Product(params = { }){
     let getProps = ["Name", "Description", "Price",
                     "ID", "Brand", "Sizes", "ActiveSize",
                     "Quantity", "Date", "Reviews", "Images"];  
-    let setProps = ["ActiveSize", "Date", "Brand", "Price", "Description", "Name"]          
     
     //Get Props def
     let defineGetProps = (properties = getProps) => {
@@ -51,17 +50,18 @@ function Product(params = { }){
     }
     defineAddProps();
     
+    let setProps = ["ActiveSize", "Date", "Brand", "Price", "Description", "Name"]          
     //Set props def
     let defineSetProps = (properties = setProps) => {
         for(let prop of properties){
-            prop == "ActiveSize" 
-                 ? Object.defineProperty(this, "set"+prop, { value: (el) => this.sizes.includes(el) ? this[prop.toLowerCase()] = el : this[prop.toLowerCase()] })
-                 : Object.defineProperty(this, "set"+prop, { value: (el) => this[prop.toLowerCase()] = el });
+            Object.defineProperty(this, "set"+prop, { value: (el) => this[prop.toLowerCase()] = el });
         }
     }
     defineSetProps();
     
-
+    this.setActiveSize = (el) => this.sizes.includes(el) ? this.activeSize = el : false
+    this.setPrice = (el) => parseFloat(el) ? this.price = el : false
+    
     this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id)
 
     this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that)
