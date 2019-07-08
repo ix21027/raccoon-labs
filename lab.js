@@ -1,15 +1,16 @@
 var _ = require('lodash'); 
 
 function Review(data = {}){
-    this.ID = data.ID,
-    this.author =  data.author,
-    this.date = data.date, 
-    this.comment = data.comment, 
+    const {ID, author, date, comment, rating} = data;
+    this.ID = ID,
+    this.author =  author,
+    this.date = date, 
+    this.comment = comment, 
     this.rating = {
-        service: data.rating.service, 
-        price: data.rating.price, 
-        value:  data.rating.value, 
-        quality: data.rating.quality
+        service: rating.service, 
+        price: rating.price, 
+        value:  rating.value, 
+        quality: rating.quality
     }
 }
 
@@ -68,7 +69,7 @@ function Product(params = { }){
 let data = {
                 name: "Lodka", description: "Veslovat' ochen' veselo", price: 900, brand: "LodDka", quantity: 5, date: new Date(),
                 reviews:[{ID:1, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:4, value: 10, quality: 2} },
-                         {ID:2, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:8, value: 10, quality: 2} }             
+                         new Review({ID:2, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:8, value: 10, quality: 2} })             
                         ],
                 images: ["url/img1", "url/img2"], activeSize: "",
                 sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], ID: (+new Date()+"" )
