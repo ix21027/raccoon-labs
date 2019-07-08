@@ -15,17 +15,18 @@ function Review(data = {}){
 }
 
 function Product(params = { }){
-    this.sizes       = params.sizes;
-    this.name        = params.name;
-    this.description = params.description;
-    this.price       = +params.price;
-    this.brand       = params.brand;
-    this.quantity    = +params.quantity;
-    this.date        = params.date;
-    this.reviews     = params.reviews;
-    this.images      = params.images;
-    this.activeSize  = params.activeSize;
-    this.ID          = params.ID; 
+    let {sizes, name, description, price, brand, quantity, date, reviews, images, activeSize, ID} = params
+    this.sizes       = sizes;
+    this.name        = name;
+    this.description = description;
+    this.price       = +price;
+    this.brand       = brand;
+    this.quantity    = +quantity;
+    this.date        = date;
+    this.reviews     = reviews;
+    this.images      = images;
+    this.activeSize  = activeSize;
+    this.ID          = ID; 
     
     let getProps = ["Name", "Description", "Price",
                     "ID", "Brand", "Sizes", "ActiveSize",
@@ -97,8 +98,8 @@ let searchProducts = (products, query) => {
 }
 
 let sortProducts = (products, sortRule = "price") => {
-    if (sortRule === "price" || sortRule === "id")
+    if (sortRule === "price")
         products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]))
-    if (sortRule == "name")
+    if (sortRule == "name" || sortRule === "id")
         products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1)
 }
