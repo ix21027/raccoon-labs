@@ -1,6 +1,4 @@
 "use strict";
-import { meanBy } from 'lodash'; 
-
 let checkBgEqZero = (n) => parseInt(n) >= 0 ? parseInt(n) : 0
 
 function Review(data = {}){
