@@ -1,6 +1,7 @@
+"use strict";
 import { meanBy } from 'lodash'; 
 
-let checkBgEqZero = (n) => parseFloat(n) >= 0 ? +n : 0
+let checkBgEqZero = (n) => parseInt(n) >= 0 ? parseInt(n) : 0
 
 function Review(data = {}){
     let {ID, author, date, comment, rating} = data;
@@ -17,54 +18,28 @@ function Review(data = {}){
         quality: quality || 0
     }
 }
+class AbstractProduct {    
+    constructor(data = {}) {
+        if (this.constructor === AbstractProduct) {
+            throw new Error('Cannot instantiate abstractclass');
+        }
 
-function Product(params = { }){
-    let {sizes, name, description, price, brand, quantity, date, reviews, images, activeSize, ID} = params
-    
-    this.sizes       = sizes || [];
-    this.name        = name || '';
-    this.description = description || '';
-    this.price       = checkBgEqZero(price);
-    this.brand       = brand || '';
-    this.quantity    = checkBgEqZero(quantity);
-    this.date        = date || new Date();
-    this.reviews     = reviews || [];
-    this.images      = images || [];
-    this.activeSize  = activeSize || '';
-    this.ID          = ID || (+new Date()+"" ); 
-    
-    //Get Props def
-    let getProps = ["Name", "Description", "Price", "Brand", "Sizes", "Quantity", "Date", "Reviews", "Images"]
-    getProps.map(prop =>
-        Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] })
-    );  
-    
-    this.getID = () => this.ID;
-    this.getActiveSize = () => this.activeSize;
-    this.getReviewByID = (id) => this.reviews.find(r => r.ID === id);
-    this.getImage = (imgName) => imgName ? this.images.find(img => img === imgName) : this.images[0];
-    
-    //Add props defining
-    ["Sizes", "Reviews"].map(prop => 
-        Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => this[prop.toLowerCase()].includes(el) 
-                                                                            ? this[prop.toLowerCase()] 
-                                                                            : this[prop.toLowerCase()].push(el) })
-    );
-            
-    //Set props defining
-    ["Date", "Brand", "Description", "Name"].map(prop =>
-            Object.defineProperty(this, "set"+prop, { value: (el) => this[prop.toLowerCase()] = el })
-    );
-    this.setActiveSize = (el) => this.sizes.includes(el) ? this.activeSize = el : false
-    this.setPrice      = (el) => parseFloat(el) ? this.price = el : false
-    
-    this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id);
-    this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that);
-    
-    this.getAverageRating = () => {
-        return ['service', 'price', 'value', 'quality'].reduce((o, key) => 
-            ({ ...o, [key]:  meanBy(this.reviews, r => r.rating[key])}), {}
-        );
+        let _name        = data.name || 'lol';
+        let _description = data.description || '';
+        let _price       = checkBgEqZero(data.price);
+        let _images      = data.images || [];
+        let _ID          = data.ID || (new Date().getTime() + "" ); 
+        
+        ["Name", "Description", "Price", "Images"].map(prop =>
+            Object.defineProperty(this, "get"+prop, { value: () => eval("_" + prop.toLowerCase()) })
+        ); 
+
+        this.getID = () => _ID;
+        this.getImage = (imgName) => imgName ? _images.find(img => img === imgName) : _images[0];
+
+        this.setName        = (new_name) => _name = new_name;
+        this.setDescription = (desc)  => _description = desc;
+        this.setPrice       = (price) => parseInt(price) >= 0 ? _price = price : false    
     }
 }
 let searchProducts = (products, query) => {
@@ -77,3 +52,5 @@ let sortProducts = (products, sortRule = "price") => {
     if (sortRule == "name" || sortRule === "ID")
         products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1)
 }
+
+
