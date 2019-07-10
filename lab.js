@@ -1,15 +1,18 @@
 import { meanBy } from 'lodash'; 
 
+let checkBgEqZero = (n) => parseFloat(n) >= 0 ? +n : 0
+
 function Review(data = {}){
     let {ID, author, date, comment, rating} = data;
     let {service, price, value, quality} = rating;
+    
     this.ID = ID || '',
     this.author =  author || '',
     this.date = date, 
     this.comment = comment || '', 
     this.rating = {
         service: service || 0, 
-        price: price || 0, 
+        price: checkBgEqZero(price), 
         value:  value || 0, 
         quality: quality || 0
     }
@@ -17,12 +20,13 @@ function Review(data = {}){
 
 function Product(params = { }){
     let {sizes, name, description, price, brand, quantity, date, reviews, images, activeSize, ID} = params
+    
     this.sizes       = sizes || [];
     this.name        = name || '';
     this.description = description || '';
-    this.price       = +price || 1;
+    this.price       = checkBgEqZero(price);
     this.brand       = brand || '';
-    this.quantity    = +quantity || 1;
+    this.quantity    = checkBgEqZero(quantity);
     this.date        = date || new Date();
     this.reviews     = reviews || [];
     this.images      = images || [];
@@ -30,11 +34,13 @@ function Product(params = { }){
     this.ID          = ID || (+new Date()+"" ); 
     
     //Get Props def
-    let getProps = ["Name", "Description", "Price", "ID", "Brand", "Sizes", "ActiveSize", "Quantity", "Date", "Reviews", "Images"]
+    let getProps = ["Name", "Description", "Price", "Brand", "Sizes", "Quantity", "Date", "Reviews", "Images"]
     getProps.map(prop =>
         Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] })
     );  
-
+    
+    this.getID = () => this.ID;
+    this.getActiveSize = () => this.activeSize;
     this.getReviewByID = (id) => this.reviews.find(r => r.ID === id);
     this.getImage = (imgName) => imgName ? this.images.find(img => img === imgName) : this.images[0];
     
