@@ -25,7 +25,7 @@ class AbstractProduct {
         let _name        = data.name || 'lol';
         let _description = data.description || '';
         let _price       = checkBgEqZero(data.price);
-        let _images      = data.images || [];
+        let _images      = data.images || [''] ;
         let _ID          = data.ID || (new Date().getTime() + "" ); 
         
         ["Name", "Description", "Price", "Images"].map(prop =>
@@ -34,7 +34,15 @@ class AbstractProduct {
 
         this.getID = () => _ID;
         this.getImage = (imgName) => imgName ? _images.find(img => img === imgName) : _images[0];
-
+        
+        this.getFullInformation = () => {
+            let getters = Object.getOwnPropertyNames(this).filter(prop => prop.startsWith('get') && prop !== "getFullInformation"); 
+            let info = getters.map( getter => `${getter.slice(3)} -> ${this[getter]()}`);
+            return info.join("\n");
+        }  
+        
+        this.getPriceForQuantity = (qty = 1) => `$${_price * qty}`;  
+        
         this.setName        = (new_name) => _name = new_name;
         this.setDescription = (desc)  => _description = desc;
         this.setPrice       = (price) => parseInt(price) >= 0 ? _price = price : false    
@@ -46,9 +54,7 @@ let searchProducts = (products, query) => {
 
 let sortProducts = (products, sortRule = "price") => {
     if (sortRule === "price")
-        products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]))
+        products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]));
     if (sortRule == "name" || sortRule === "ID")
-        products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1)
+        products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1);
 }
-
-
