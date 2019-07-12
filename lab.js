@@ -1,5 +1,5 @@
 "use strict";
-import { meanBy } from 'lodash';
+//import { meanBy } from 'lodash';
 let checkBgEqZero = (n) => parseInt(n) >= 0 ? parseInt(n) : 0
 
 function Review(data = {}){
@@ -249,3 +249,4 @@ const check = {
     }
 }
 
+//export {Clothes, Electronics, Review, check, searchProducts, sortProducts}
