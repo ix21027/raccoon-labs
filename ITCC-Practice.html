@@ -1,0 +1,19 @@
+<html>
+   <head>
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+          <script type="text/javascript" src="lab.js" ></script>
+   </head>
+   
+   <body>
+        <ul class="product-grid"></ul>
+
+        <script type = "text/javascript">
+            let dress = new Clothes({name: "Dress", price: 200});
+            let shirt = new Clothes({name: "Shirt", price: 20});
+            
+            let ul = document.querySelector("ul.product-grid");
+            
+            [dress, shirt].map( c => ul.appendChild(c.getProductTileHTML()))
+        </script>
+   </body>
+</html>
