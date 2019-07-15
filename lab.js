@@ -1,6 +1,8 @@
 "use strict";
-//import { meanBy } from 'lodash';
-let checkBgEqZero = (n) => parseInt(n) >= 0 ? parseInt(n) : 0
+//@ts-check
+
+let meanBy = (review, key) => (review.reduce((acc, val) => acc.rating[key] + val.rating[key]) / review.length).toFixed(1);
+let checkBgEqZero = (n) => parseFloat(n) >= 0 ? parseFloat(n) : 0
 
 function Review(data = {}){
     let {ID, author, date, comment, rating} = data;
@@ -19,7 +21,7 @@ function Review(data = {}){
 }
 class AbstractProduct {    
     constructor(data = {}) {
-        if (this.constructor === AbstractProduct) {
+        if (new.target === AbstractProduct) {
             throw new Error('Cannot instantiate abstractclass');
         }
 
@@ -40,8 +42,23 @@ class AbstractProduct {
         
         this.setName        = (new_name) => _name = new_name;
         this.setDescription = (desc)  => _description = desc;
-        this.setPrice       = (price) => { if (parseInt(price) >= 0) _price = price }    
-            
+        this.setPrice       = (price) => { if (parseFloat(price) >= 0) _price = price }    
+        
+        this.getterSetter = (data = "getName") => {  //* {setterName: argument} or "getterName"
+        if (typeof data == "string")
+            return this[data];
+        if (typeof data == "object")
+            for (const [setter, arg] of Object.entries(data)) {
+                if(setter === "price") { 
+                    if (parseFloat(arg) >= 0){
+                        _price = arg;
+                    } else {
+                        throw new Error("price should be bigger or equal then 0")
+                    } 
+                }
+                this[setter] = arg;
+            }   
+        } 
         this.getProductTileHTML = () => {
             let li = document.createElement('li');
             
@@ -140,15 +157,7 @@ class AbstractProduct {
         let info = getters.map( getter => `${getter.slice(3)} -> ${this[getter]()}`);
         return info.join("\n");
     }
-    getterSetter(data = "getName") {  //* {setterName: argument} or "getterName"
-        if (typeof data == "string")
-            return this[data]
-        if (typeof data == "object")
-            for (const [setter, arg] of Object.entries(data)) {
-                this[setter] = arg;
-            }   
-    }  
-    
+        
 }
 
 let searchProducts = (products, query) => {
@@ -185,9 +194,8 @@ class Clothes extends AbstractProduct {
         this.getReviewByID = (id) => _reviews.find(r => r.ID === id);
         
         this.getAverageRating = () => {
-            return ['service', 'price', 'value', 'quality'].reduce((o, key) => 
-            ({ ...o, [key]:  meanBy(_reviews, r => r.rating[key])}), {}
-            );
+            if(_reviews.length) return ['service', 'price', 'value', 'quality'].reduce((o, key) => ({ ...o, [key]:  meanBy(_reviews, key)}), {});
+            else return NaN;
         }
         
         let setters = ["Date", "Brand", "Color", "Material", "Quantity"];
@@ -206,34 +214,78 @@ class Clothes extends AbstractProduct {
     }
 }
 
-class Electronics extends AbstractProduct {
-    constructor(data = {}) {
-        super(data);
-        this._warranty = data.warranty || 0;
-        this._power = data.power || 0;
-    }
+// class Electronics extends AbstractProduct {
+//     constructor(data = {}) {
+//         super(data);
+//         this._warranty = data.warranty || 0;
+//         this._power = data.power || 0;
+//     }
     
-    set warranty(newWarranty) {
-        if (0 <= newWarr && newWarr <= 10) this._warranty = newWarranty;
-        else throw new Error('invalid warranty');
-    }
+//     set warranty(newWarranty) {
+//         if (0 <= newWarr && newWarr <= 10) this._warranty = newWarranty;
+//         else throw new Error('invalid warranty');
+//     }
 
-    set power(newPower) {
-        this._power = newPower;
-    }
-    
-    get warranty() {
-        return this._warranty;
-    }
-    get power() {
-        return this._power;
-    }
-    getFullInformation() {
-        return super.getFullInformation() + "\n"
-            + "Power -> " + this.power + "\n"
-            + "Warranty -> " + this.warranty
-    }
+//     set power(newPower) {
+//         this._power = newPower;
+//     }
+
+//     get warranty() {
+//         return this._warranty;
+//     }
+//     get power() {
+//         return this._power;
+//     }
+//     getFullInformation() {
+//         return super.getFullInformation() + "\n"
+//             + "Power -> " + this.power + "\n"
+//             + "Warranty -> " + this.warranty
+//     }
+// }
+
+function extend(child, parent) { 
+    for (var key in parent) {
+        if (hasProp.call(parent, key)) child[key] = parent[key]; 
+    } 
+    function ctor() { this.constructor = child; } 
+    ctor.prototype = parent.prototype; 
+    child.prototype = new ctor(); 
+    child.__super__ = parent.prototype; 
+    return child; 
 }
+extend(Electronics, AbstractProduct);
+function Electronics(data = {}) {
+    this._warranty = data.warranty || 0;
+    this._power = data.power || 0;
+}
+Object.defineProperty(Electronics.prototype, "warranty", {
+    get: function () {
+        return this._warranty;
+    },
+    set: function (newWarranty) {
+        if (0 <= newWarr && newWarr <= 10)
+        this._warranty = newWarranty;
+        else
+        throw new Error('invalid warranty');
+    },
+    enumerable: true,
+    configurable: true
+});
+Object.defineProperty(Electronics.prototype, "power", {
+    get: function () {
+        return this._power;
+    },
+    set: function (newPower) {
+        this._power = newPower;
+    },
+    enumerable: true,
+    configurable: true
+});
+Electronics.prototype.getFullInformation = function() {
+    return Electronics.__super__.getFullInformation.apply(this) + "\n"
+        + "Power -> " + this.power + "\n"
+        + "Warranty -> " + this.warranty;
+};
 
 const check = {
     mail(email) {
@@ -246,5 +298,3 @@ const check = {
         return /^(\+[\d]{2})?(([\s-]*)(\()?([\s-]*)(\d)([\s-]*)(\d)([\s-]*)(\d)(\))?)(([\s-]*[\d][\s-]*){7})$/.test(phone)
     }
 }
-
-//export {Clothes, Electronics, Review, check, searchProducts, sortProducts}
