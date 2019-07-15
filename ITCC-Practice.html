@@ -1,19 +1,24 @@
 <html>
-   <head>
+     <head>
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
           <script type="text/javascript" src="lab.js" ></script>
-   </head>
+     </head>
    
-   <body>
-        <ul class="product-grid"></ul>
+     <body>
+          <ul class="slides">
+          </ul>
 
-        <script type = "text/javascript">
-            let dress = new Clothes({name: "Dress", price: 200});
-            let shirt = new Clothes({name: "Shirt", price: 20});
-            
-            let ul = document.querySelector("ul.product-grid");
-            
-            [dress, shirt].map( c => ul.appendChild(c.getProductTileHTML()))
-        </script>
-   </body>
+          <script type = "text/javascript">
+               async function getData() {
+                    let data = await plp.getProducts();
+                    
+                    let clothes = data.map(data => new Clothes(data));
+                    
+                    let ul = document.querySelector("ul.slides");
+                    
+                    plp.renderProduct(clothes, ul);
+               }
+               getData()
+          </script>
+     </body>
 </html>

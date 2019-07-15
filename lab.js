@@ -298,3 +298,23 @@ const check = {
         return /^(\+[\d]{2})?(([\s-]*)(\()?([\s-]*)(\d)([\s-]*)(\d)([\s-]*)(\d)(\))?)(([\s-]*[\d][\s-]*){7})$/.test(phone)
     }
 }
+
+var plp = (function(my){
+    let url = "http://10.0.1.43:8887/product-feed.json";
+    
+    my.getProducts = async () => await $.ajax(url);
+    
+    my.renderProduct = (clothes,ulSlides) => {
+        for (let i=0; i < Math.ceil(clothes.length/4); i++) {
+            let li = document.createElement('li');
+            let ul = document.createElement('ul');
+            ul.className = "products-grid";
+            ulSlides.appendChild(li);
+            li.appendChild(ul);
+            clothes.splice(0, 4).map(c => ul.appendChild(c.getProductTileHTML()) );
+        }
+    }
+
+    return my;
+
+})(plp || {});
