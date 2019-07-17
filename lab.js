@@ -52,6 +52,7 @@ class AbstractProduct {
                 if(setter === "price") { 
                     if (parseFloat(arg) >= 0){
                         _price = arg;
+                        continue;
                     } else {
                         throw new Error("price should be bigger or equal then 0")
                     } 
@@ -160,16 +161,23 @@ class AbstractProduct {
         
 }
 
-let searchProducts = (products, query) => {
-    products.filter(p => p.getName.includes(query)  || p.getDescription.includes(query));
+let searchProducts = (products_arr, query) => {
+    let products = [...products_arr];
+    return products.filter(p => p.getName().toLowerCase().includes(query) || p.getDescription().toLowerCase().includes(query));
 }
-
-let sortProducts = (products, sortRule = "price") => {
-    if (sortRule === "price") {
-        products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]));
+let sortProducts = (products_arr, sortRule = "price", prefix = "l-h") => {
+    let products = [...products_arr];
+    if (sortRule === "price" && prefix == "l-h") {
+        return products.sort( (a,b) => parseFloat( a.getPrice() ) - parseFloat( b.getPrice() ) );
     }
-    if (sortRule == "name" || sortRule === "ID") {
-        products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1);
+    if (sortRule === "price" && prefix == "h-l") {
+        return products.sort( (a,b) => parseFloat( a.getPrice() ) - parseFloat( b.getPrice() ) ).reverse();
+    }
+    if (sortRule == "name" && prefix == 'a-z') {
+        return products.sort( (a,b) => ( a.getName() > b.getName() ) ? 1 : -1).reverse();
+    }
+    if (sortRule == "name" && prefix == 'z-a') {
+        return products.sort( (a,b) => ( a.getName() > b.getName() ) ? 1 : -1);
     }
 }
 class Clothes extends AbstractProduct {
@@ -296,6 +304,9 @@ const check = {
     },
     phone(phone) {
         return /^(\+[\d]{2})?(([\s-]*)(\()?([\s-]*)(\d)([\s-]*)(\d)([\s-]*)(\d)(\))?)(([\s-]*[\d][\s-]*){7})$/.test(phone)
+    },
+    searchField(query) {
+        return /^((?!(.*?\*){2,}|.*? |\*$).*?\*.*)|[a-zA-Z]{3,30}$/.test(query)
     }
 }
 
@@ -304,17 +315,83 @@ var plp = (function(my){
     
     my.getProducts = async () => await $.ajax(url);
     
-    my.renderProduct = (clothes,ulSlides) => {
+    my.renderProduct = (clothes, ulSlides) => {
         for (let i=0; i < Math.ceil(clothes.length/4); i++) {
             let li = document.createElement('li');
             let ul = document.createElement('ul');
-            ul.className = "products-grid";
+            ul.className = "products-grid text-center";
+            ul.style = "display: flex; padding-left: 0px; ";
             ulSlides.appendChild(li);
             li.appendChild(ul);
-            clothes.splice(0, 4).map(c => ul.appendChild(c.getProductTileHTML()) );
+            let cl = [...clothes];
+            cl.splice(0, 4).map(c => ul.appendChild(c.getProductTileHTML()) );
         }
     }
 
     return my;
 
 })(plp || {});
+
+let render = (arrayProducts, element, sortValue) => {
+    if (sortValue) var sortedArray = sortProducts(arrayProducts, ...sortValue.split(" "));
+    
+    while (element.firstChild) {element.removeChild(element.firstChild);  }
+    plp.renderProduct(sortedArray || arrayProducts, element);
+  }
+
+async function getData() {
+    let data = await plp.getProducts();
+    
+    let clothes = data.map(data => new Clothes(data));
+    
+    let ul = document.querySelector("ul.slides");
+    
+    plp.renderProduct(clothes, ul);
+    
+    let searchInput = document.getElementById('search');
+    let searchError = document.getElementById('search-error');
+    let searchForm  = document.getElementById('search-form');
+    let searchButton= document.getElementById('search-button');
+    
+    let selectTitle = document.getElementById('title-select');
+    let selectPrice = document.getElementById('price-select');
+    let selectValue = 'title a-z';
+    
+    selectPrice.addEventListener('change', function(e) { selectValue = e.target.value,render(clothes, ul, selectValue) })
+    selectTitle.addEventListener('change', function(e) { selectValue = e.target.value,render(clothes, ul, selectValue) })
+    
+    searchInput.addEventListener('keyup', function(e) { 
+        if ( check.searchField(e.target.value) ) {
+            searchButton.disabled = false;
+            searchInput.style = "";
+            searchError.innerText = "";
+            if (searchProducts(clothes, e.target.value).length > 0) 
+                render(searchProducts(clothes, e.target.value), ul);
+            else 
+                ul.innerHTML = "<h3>Nothing found</h3>";
+        } else if (e.target.value == '') {
+            searchButton.disabled = false;
+            searchInput.style = "";
+            searchError.innerText = "";
+            render(clothes, ul);
+            getData();
+        } else {
+            searchButton.disabled = true;
+            searchInput.style = "border-width: 5px; border-color: red;";
+            searchError.innerText = "should be at least 3 letters";
+            render(clothes, ul);
+        }
+        
+    });
+    searchButton.addEventListener('click', function (event) {
+        searchButton.disabled = false;
+            searchInput.style = "";
+            searchError.innerText = "";
+            if (searchProducts(clothes, e.target.value).length > 0) 
+                render(searchProducts(clothes, e.target.value), ul);
+            else 
+                ul.innerHTML = "<h3>Nothing found</h3>";
+    });
+}
+
+getData();
