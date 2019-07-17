@@ -18,7 +18,7 @@
                                    SORTINGS BY PRICE
                               </p>  
                               <select class="custom-select" id="price-select">
-                                   <option selected value="price l-h">Price low to high</option>
+                                   <option value="price l-h">Price low to high</option>
                                    <option value="price h-l">Price high to low</option>
                               </select>
                          </div>
@@ -27,7 +27,7 @@
                                    SORTINGS BY TITLE
                               </p>  
                               <select class="custom-select" id="title-select">
-                                   <option selected value="title a-z">Titile a-z</option>
+                                   <option value="title a-z">Title a-z</option>
                                    <option value="title z-a">Title z-a</option>
                               </select>
                          </div>
@@ -38,7 +38,7 @@
                               <form class="input-group" id="search-form">
                                    <input type="text" class="form-control" placeholder="Search..." id= "search">
                                    <div class="input-group-append">
-                                        <button class="btn btn-secondary" type="button" id="search-button">
+                                        <button class="btn btn-secondary" type="button" id="search-button" disabled>
                                              <i class="fa fa-search"></i>
                                         </button>
                                    </div>
@@ -52,5 +52,12 @@
           </div>
 
           <script type="text/javascript" src="lab.js" ></script>
+          <script>
+               $(document).ready(function() {
+                   $(".product-overlay").on("error", function(){
+                       $(this).attr('src', 'http://placehold.it/225/cccccc/0000&text=I');
+                   });
+               });
+          </script>
      </body>
 </html>

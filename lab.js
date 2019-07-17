@@ -89,7 +89,8 @@ class AbstractProduct {
     
             productOverlayDIV.className = "product-overlay";
             productOverlayANCOR.href = '#';
-            productOverlayAncorIMG.src= "http://placehold.it/225/cccccc/0000&amp;text=I";
+            productOverlayAncorIMG.src= _images;
+            productOverlayAncorIMG.onerror = "this.src='http://placehold.it/225/cccccc/0000&text=I';";
             productOverlayAncorIMG.alt = _name;
             productOverlayAncorIMG.height = 225;
             productOverlayAncorIMG.width = 225;
@@ -161,23 +162,19 @@ class AbstractProduct {
         
 }
 
-let searchProducts = (products_arr, query) => {
-    let products = [...products_arr];
-    return products.filter(p => p.getName().toLowerCase().includes(query) || p.getDescription().toLowerCase().includes(query));
-}
-let sortProducts = (products_arr, sortRule = "price", prefix = "l-h") => {
-    let products = [...products_arr];
+let searchProducts = (products, query) => products.filter(p => p.getName().toLowerCase().includes(query) || p.getDescription().toLowerCase().includes(query));
+let sortProducts = (products, sortRule = "price", prefix = "l-h") => {
     if (sortRule === "price" && prefix == "l-h") {
         return products.sort( (a,b) => parseFloat( a.getPrice() ) - parseFloat( b.getPrice() ) );
     }
     if (sortRule === "price" && prefix == "h-l") {
-        return products.sort( (a,b) => parseFloat( a.getPrice() ) - parseFloat( b.getPrice() ) ).reverse();
-    }
-    if (sortRule == "name" && prefix == 'a-z') {
-        return products.sort( (a,b) => ( a.getName() > b.getName() ) ? 1 : -1).reverse();
-    }
-    if (sortRule == "name" && prefix == 'z-a') {
+        return products.sort( (a,b) => parseFloat( b.getPrice() ) - parseFloat( a.getPrice() ) );
+    }     
+    if (sortRule == "title" && prefix == "a-z") {
         return products.sort( (a,b) => ( a.getName() > b.getName() ) ? 1 : -1);
+    }
+    if (sortRule == "title" && prefix == "z-a") {
+        return products.sort( (a,b) => ( a.getName() < b.getName() ) ? 1 : -1);
     }
 }
 class Clothes extends AbstractProduct {
@@ -306,7 +303,7 @@ const check = {
         return /^(\+[\d]{2})?(([\s-]*)(\()?([\s-]*)(\d)([\s-]*)(\d)([\s-]*)(\d)(\))?)(([\s-]*[\d][\s-]*){7})$/.test(phone)
     },
     searchField(query) {
-        return /^((?!(.*?\*){2,}|.*? |\*$).*?\*.*)|[a-zA-Z]{3,30}$/.test(query)
+        return /^((?!(.*?\*){2,}|.*? |\*$).*?\*.*)|[a-zA-Z ]{3,30}$/.test(query)
     }
 }
 
@@ -316,6 +313,7 @@ var plp = (function(my){
     my.getProducts = async () => await $.ajax(url);
     
     my.renderProduct = (clothes, ulSlides) => {
+        let cl = [...clothes];
         for (let i=0; i < Math.ceil(clothes.length/4); i++) {
             let li = document.createElement('li');
             let ul = document.createElement('ul');
@@ -323,7 +321,6 @@ var plp = (function(my){
             ul.style = "display: flex; padding-left: 0px; ";
             ulSlides.appendChild(li);
             li.appendChild(ul);
-            let cl = [...clothes];
             cl.splice(0, 4).map(c => ul.appendChild(c.getProductTileHTML()) );
         }
     }
@@ -332,34 +329,36 @@ var plp = (function(my){
 
 })(plp || {});
 
-let render = (arrayProducts, element, sortValue) => {
-    if (sortValue) var sortedArray = sortProducts(arrayProducts, ...sortValue.split(" "));
-    
-    while (element.firstChild) {element.removeChild(element.firstChild);  }
-    plp.renderProduct(sortedArray || arrayProducts, element);
+let render = (arrayProducts, element, sortValue = "title a-z") => {
+    while (element.firstChild) { element.removeChild(element.firstChild); }
+    plp.renderProduct(sortProducts(arrayProducts, ...sortValue.split(" ")), element);
   }
 
 async function getData() {
     let data = await plp.getProducts();
-    
-    let clothes = data.map(data => new Clothes(data));
-    
+    const clothes = data.map(data => new Clothes(data));
+
     let ul = document.querySelector("ul.slides");
-    
+
     plp.renderProduct(clothes, ul);
-    
+
     let searchInput = document.getElementById('search');
     let searchError = document.getElementById('search-error');
-    let searchForm  = document.getElementById('search-form');
     let searchButton= document.getElementById('search-button');
-    
+
     let selectTitle = document.getElementById('title-select');
     let selectPrice = document.getElementById('price-select');
     let selectValue = 'title a-z';
-    
-    selectPrice.addEventListener('change', function(e) { selectValue = e.target.value,render(clothes, ul, selectValue) })
-    selectTitle.addEventListener('change', function(e) { selectValue = e.target.value,render(clothes, ul, selectValue) })
-    
+
+    selectTitle.addEventListener('change', function(e) { 
+        selectValue = e.target.value;
+        render(searchProducts(clothes, searchInput.value), ul, selectValue); 
+    });
+    selectPrice.addEventListener('change', function(e) { 
+        selectValue = e.target.value;
+        render(searchProducts(clothes, searchInput.value), ul, selectValue); 
+    });
+
     searchInput.addEventListener('keyup', function(e) { 
         if ( check.searchField(e.target.value) ) {
             searchButton.disabled = false;
@@ -370,7 +369,7 @@ async function getData() {
             else 
                 ul.innerHTML = "<h3>Nothing found</h3>";
         } else if (e.target.value == '') {
-            searchButton.disabled = false;
+            searchButton.disabled = true;
             searchInput.style = "";
             searchError.innerText = "";
             render(clothes, ul);
@@ -381,16 +380,6 @@ async function getData() {
             searchError.innerText = "should be at least 3 letters";
             render(clothes, ul);
         }
-        
-    });
-    searchButton.addEventListener('click', function (event) {
-        searchButton.disabled = false;
-            searchInput.style = "";
-            searchError.innerText = "";
-            if (searchProducts(clothes, e.target.value).length > 0) 
-                render(searchProducts(clothes, e.target.value), ul);
-            else 
-                ul.innerHTML = "<h3>Nothing found</h3>";
     });
 }
 
