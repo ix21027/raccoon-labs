@@ -1,87 +1,386 @@
-var _ = require('lodash'); 
+"use strict";
+//@ts-check
 
-function Product(params = { name: "", description: "", price: 1, brand: "", quantity: 1, 
-                            date: new Date(), reviews: [], images: [], activeSize: "",
-                            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], ID: (+new Date()+"" )}
-                ){
-    this.sizes       = params.sizes;
-    this.name        = params.name;
-    this.description = params.description;
-    this.price       = +params.price;
-    this.brand       = params.brand;
-    this.quantity    = +params.quantity;
-    this.date        = params.date;
-    this.reviews     = params.reviews;
-    this.images      = params.images;
-    this.activeSize  = params.activeSize;
-    this.ID          = params.ID; 
+let meanBy = (review, key) => (review.reduce((acc, val) => acc.rating[key] + val.rating[key]) / review.length).toFixed(1);
+let checkBgEqZero = (n) => parseFloat(n) >= 0 ? parseFloat(n) : 0
+
+function Review(data = {}){
+    let {ID, author, date, comment, rating} = data;
+    let {service, price, value, quality} = rating;
     
-    let getProps = ["Name", "Description", "Price",
-                    "ID", "Brand", "Sizes", "ActiveSize",
-                    "Quantity", "Date", "Reviews", "Images"];  
-    let setProps = ["ActiveSize", "Date", "Brand", "Price", "Description", "Name"]          
-    
-    //Get Props def
-    let defineGetProps = (properties = getProps) => {
-        for(let prop of properties) 
-        Object.defineProperty(this, "get"+prop, { value: () => this[prop.toLowerCase()] });
+    this.ID = ID || '',
+    this.author =  author || '',
+    this.date = date, 
+    this.comment = comment || '', 
+    this.rating = {
+        service: service || 0, 
+        price: checkBgEqZero(price), 
+        value:  value || 0, 
+        quality: quality || 0
     }
-    defineGetProps();
+}
+class AbstractProduct {    
+    constructor(data = {}) {
+        if (new.target === AbstractProduct) {
+            throw new Error('Cannot instantiate abstractclass');
+        }
+
+        let _name        = data.name || 'lol';
+        let _description = data.description || '';
+        let _price       = checkBgEqZero(data.price);
+        let _images      = data.images || ['default img'] ;
+        let _ID          = data.ID || (new Date().getTime() + "" ); 
+        
+        ["Name", "Description", "Price", "Images"].map(prop =>
+            Object.defineProperty(this, "get"+prop, { value: () => eval("_" + prop.toLowerCase()) })
+        ); 
+
+        this.getID = () => _ID;
+        this.getImage = (imgName) => imgName ? _images.find(img => img === imgName) : _images[0];
+        
+        this.getPriceForQuantity = (qty = 1) => `$${_price * qty}`;  
+        
+        this.setName        = (new_name) => _name = new_name;
+        this.setDescription = (desc)  => _description = desc;
+        this.setPrice       = (price) => { if (parseFloat(price) >= 0) _price = price }    
+        
+        this.getterSetter = (data = "getName") => {  //* {setterName: argument} or "getterName"
+            if (typeof data == "string")
+                return this[data];
+            if (typeof data == "object"){
+                for (const [setter, arg] of Object.entries(data)) {
+                    if(setter === "price") { 
+                        if (parseFloat(arg) >= 0){
+                            _price = arg;
+                            continue;
+                        } else {
+                            throw new Error("price should be bigger or equal then 0")
+                        } 
+                    }   
+                    this[setter] = arg;
+                }
+            }   
+        } 
+        this.getProductTileHTML = () => {
+            let li = document.createElement('li');
+            
+            let productOverlayDIV = document.createElement('div');
+            let productOverlayANCOR = document.createElement('a');
+            let productOverlayAncorIMG = document.createElement('img');
+            
+            let imgOverlayDIV = document.createElement('div');
+            let imgOverlayAnchor = document.createElement('a');
+            let imgOverlayAreaDIV = document.createElement('div');
+            let imgOverlayAreaH2 = document.createElement('h2');
+            let headingHolderDIV = document.createElement('div');
+            let priceSTRONG = document.createElement('strong');
+            let priceBoxDIV = document.createElement('div');
+            let regularPriceSPAN = document.createElement('span');
+            let priceSPAN = document.createElement('span');
+            let overlayTXTdiv = document.createElement('div');
+            let holderDIV = document.createElement('div');
+            let quickViewA = document.createElement('div');
+            
+            let productNameH3 = document.createElement('h3');
+            let productNameA = document.createElement('a');
+            
+            let priceDIV = document.createElement('div');
+            let regpriceSPAN = document.createElement('span');
+            let boxpriceSPAN = document.createElement('span');
     
-    this.getReviewByID = (id) => this.reviews.find(r => r.ID === id);
-    this.getImage = (imgName) => imgName ? this.images.find(img => img === imgName) : this.images[0];
+            productOverlayDIV.className = "product-overlay";
+            productOverlayANCOR.href = '#';
+            productOverlayAncorIMG.src= _images;
+            productOverlayAncorIMG.alt = _name;
+            productOverlayAncorIMG.height = 225;
+            productOverlayAncorIMG.width = 225;
     
-    //Add props def
-    let defineAddProps = (properties = ["Sizes", "Reviews"]) => {
-        for(let prop of properties) 
-            Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => this[prop.toLowerCase()].includes(el) ? this[prop.toLowerCase()] : this[prop.toLowerCase()].push(el)  });
-    }
-    defineAddProps();
+            imgOverlayDIV.className = "img-overlay";
+            imgOverlayAnchor.href = "#";
+            imgOverlayAnchor.title = _name;
+            imgOverlayAreaDIV.className = "img-overlay-area";
+            imgOverlayAreaH2.className = "heading";
+            imgOverlayAreaH2.innerText = _name;
+            headingHolderDIV.className = "heading-holder";
+            priceSTRONG.className = "price";
+            priceBoxDIV.className = "price-box";
+            regularPriceSPAN.className = "regular-price";
+            priceSPAN.className = "price";
+            priceSPAN.innerHTML = "&euro;" + _price;
+            overlayTXTdiv.className = "overlay-txt";
+            holderDIV.className = "holder";
+            quickViewA.className = "quickview";
+            quickViewA.rel = "nofollow";
+            quickViewA.href = "#"; 
+            quickViewA.innerText = "Quickview";
+            
+            productNameH3.className = "product-name";
+            productNameA.href = "#";
+            
+            productNameA.innerText = _name;
+            priceDIV.className = "price-box";
+            regpriceSPAN.className = "regular-price";
+            boxpriceSPAN.className = "price";
+            boxpriceSPAN.innerHTML = "&euro;" + _price;
     
-    //Set props def
-    let defineSetProps = (properties = setProps) => {
-        for(let prop of properties){
-            prop == "ActiveSize" 
-                 ? Object.defineProperty(this, "set"+prop, { value: (el) => this.sizes.includes(el) ? this[prop.toLowerCase()] = el : this[prop.toLowerCase()] })
-                 : Object.defineProperty(this, "set"+prop, { value: (el) => this[prop.toLowerCase()] = el });
+            li.appendChild(productOverlayDIV);
+            productOverlayDIV.appendChild(productOverlayANCOR);
+            productOverlayANCOR.appendChild(productOverlayAncorIMG);
+            
+            productOverlayDIV.appendChild(imgOverlayDIV);
+            imgOverlayDIV.appendChild(imgOverlayAnchor);
+            imgOverlayAnchor.appendChild(imgOverlayAreaDIV);
+            imgOverlayAreaDIV.appendChild(imgOverlayAreaH2)
+            
+            imgOverlayAreaDIV.appendChild(headingHolderDIV);
+            headingHolderDIV.appendChild(priceSTRONG);
+            priceSTRONG.appendChild(priceBoxDIV);
+            priceBoxDIV.appendChild(regularPriceSPAN);
+            regularPriceSPAN.appendChild(priceSPAN);
+    
+            imgOverlayDIV.appendChild(overlayTXTdiv);
+    
+            imgOverlayAreaDIV.appendChild(holderDIV);
+            holderDIV.appendChild(quickViewA);
+    
+            li.appendChild(productNameH3);
+            productNameH3.appendChild(productNameA);
+    
+            li.appendChild(priceDIV);
+            priceDIV.appendChild(regpriceSPAN);
+            regpriceSPAN.appendChild(boxpriceSPAN);
+    
+            return li;
         }
     }
-    defineSetProps();
+    getFullInformation() {
+        let wastedProps = ["getPriceForQuantity", "getProductTileHTML"];
+        let getters = Object.getOwnPropertyNames(this).filter(prop => prop.startsWith('get') && !(wastedProps.includes(prop))); 
+        let info = getters.map( getter => `${getter.slice(3)} -> ${this[getter]()}`);
+        return info.join("\n");
+    }
+        
+}
+
+let searchProducts = (products, query) => products.filter(p => p.getName().toLowerCase().includes(query.toLowerCase()) || p.getDescription().toLowerCase().includes(query.toLowerCase()));
+let sortProducts = (products, sortRule = "price", prefix = "l-h") => {
+    if (sortRule === "price" && prefix == "l-h") {
+        return products.sort( (a,b) => parseFloat( a.getPrice() ) - parseFloat( b.getPrice() ) );
+    }
+    if (sortRule === "price" && prefix == "h-l") {
+        return products.sort( (a,b) => parseFloat( b.getPrice() ) - parseFloat( a.getPrice() ) );
+    }     
+    if (sortRule == "title" && prefix == "a-z") {
+        return products.sort( (a,b) => ( a.getName() > b.getName() ) ? 1 : -1);
+    }
+    if (sortRule == "title" && prefix == "z-a") {
+        return products.sort( (a,b) => ( a.getName() < b.getName() ) ? 1 : -1);
+    }
+}
+class Clothes extends AbstractProduct {
+    constructor(data = {}) {
+        super(data);
+        let {sizes, brand, quantity, date, reviews, activeSize, material, color} = data;
+        
+        let _activeSize  = activeSize || 'default';         
+        
+        let _brand       = brand      || 'default';         //******************
+        let _color       = color      || 'default color';   //
+        let _date        = date       || new Date();        //
+        let _material    = material   || 'default material';//  in propsToDefine
+        let _reviews     = reviews    || [];                //                //
+        let _sizes       = sizes      || [];                //
+        let _quantity    = checkBgEqZero(quantity);         //******************
+        
+        let getters = ["Brand", "Sizes", "Quantity", "Date", "Reviews", "Material", "Color"];
+        getters.map( prop => Object.defineProperty(this, "get"+prop, { value: () => eval("_" + prop.toLowerCase()) }) );
+        
+        this.getActiveSize = () => _activeSize;
+        this.getReviewByID = (id) => _reviews.find(r => r.ID === id);
+        
+        this.getAverageRating = () => {
+            if(_reviews.length) return ['service', 'price', 'value', 'quality'].reduce((o, key) => ({ ...o, [key]:  meanBy(_reviews, key)}), {});
+            else return NaN;
+        }
+        
+        let setters = ["Date", "Brand", "Color", "Material", "Quantity"];
+        setters.map(prop => 
+            Object.defineProperty(this, "set"+prop, { value: (el) => eval("_" + prop.toLowerCase() + '= el') })
+        );
+        this.setActiveSize = (el) => _sizes.includes(el) ? _activeSize = el : false; 
+        
+        //methods for adding size, review
+        ["Sizes", "Reviews"].map(prop => 
+            Object.defineProperty(this, "add"+prop.slice(0, -1), { value: (el) => eval("_" + prop.toLowerCase() + '.includes(el)') 
+                                                                                ? false 
+                                                                                : eval("_" + prop.toLowerCase() + '.push(el)') })
+        );
+        this.deleteSize = (that) => _sizes = _sizes.filter(size => size !== that);
+    }
+}
+
+// class Electronics extends AbstractProduct {
+//     constructor(data = {}) {
+//         super(data);
+//         this._warranty = data.warranty || 0;
+//         this._power = data.power || 0;
+//     }
     
+//     set warranty(newWarranty) {
+//         if (0 <= newWarr && newWarr <= 10) this._warranty = newWarranty;
+//         else throw new Error('invalid warranty');
+//     }
 
-    this.deleteReview = (id) => this.reviews = this.reviews.filter(r => r.ID !== id)
+//     set power(newPower) {
+//         this._power = newPower;
+//     }
 
-    this.deleteSize = (that) => this.sizes = this.sizes.filter(size => size !== that)
-    this.getAverageRating = () => _.meanBy(this.reviews, r => r.rating.value)
+//     get warranty() {
+//         return this._warranty;
+//     }
+//     get power() {
+//         return this._power;
+//     }
+//     getFullInformation() {
+//         return super.getFullInformation() + "\n"
+//             + "Power -> " + this.power + "\n"
+//             + "Warranty -> " + this.warranty
+//     }
+// }
+
+function extend(child, parent) { 
+    for (var key in parent) {
+        if (hasProp.call(parent, key)) child[key] = parent[key]; 
+    } 
+    function ctor() { this.constructor = child; } 
+    ctor.prototype = parent.prototype; 
+    child.prototype = new ctor(); 
+    child.__super__ = parent.prototype; 
+    return child; 
 }
-let args = {
-                name: "Lodka", description: "Veslovat' ochen' veselo", price: 900, brand: "LodDka", quantity: 5, date: new Date(),
-                reviews:[{ID:1, author: "kek", date: new Date(), comment: "some comment", rating: {service:4, price:43, value: 10, quality: 2} }],
-                images: ["url/img1", "url/img2"], activeSize: "",
-                sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'], ID: (+new Date()+"" )
-            }
-
-let p = new Product(args);
-
-console.log(p.getName());
-console.log(p.getDescription());
-console.log(p.getSizes());
-console.log(p.getQuantity());
-console.log(p.getReviewByID(1).comment);
-console.log(p.getImage("url/img1"));
-console.log(p.addSize("XXS"));
-console.log(p.getSizes());
-console.log(p.deleteSize("XS"));
-console.log(p.getSizes());
-console.log(p.getAverageRating());
-
-
-let searchProducts = (products, query) => {
-    products.filter(p => p.getName.includes(query)  || p.getDescription.includes(query))
+extend(Electronics, AbstractProduct);
+function Electronics(data = {}) {
+    this._warranty = data.warranty || 0;
+    this._power = data.power || 0;
 }
-let sortProducts = (products, sortRule = "price") => {
-    if (sortRule === "price" || sortRule === "id")
-        products.sort((a,b) => parseFloat(a[sortRule])-parseFloat(b[sortRule]))
-    if (sortRule == "name")
-        products.sort((a,b) => ( a[sortRule] > b[sortRule] ) ? 1 : -1)
+Object.defineProperty(Electronics.prototype, "warranty", {
+    get: function () {
+        return this._warranty;
+    },
+    set: function (newWarranty) {
+        if (0 <= newWarr && newWarr <= 10)
+        this._warranty = newWarranty;
+        else
+        throw new Error('invalid warranty');
+    },
+    enumerable: true,
+    configurable: true
+});
+Object.defineProperty(Electronics.prototype, "power", {
+    get: function () {
+        return this._power;
+    },
+    set: function (newPower) {
+        this._power = newPower;
+    },
+    enumerable: true,
+    configurable: true
+});
+Electronics.prototype.getFullInformation = function() {
+    return Electronics.__super__.getFullInformation.apply(this) + "\n"
+        + "Power -> " + this.power + "\n"
+        + "Warranty -> " + this.warranty;
+};
+
+const check = {
+    mail(email) {
+        return /(^[A-Za-z\d]{1})([^@]{1,19})@([\w.!$%\&;’*+\/=?\^_-]{1,15})\.([A-Za-z]{1,5}$)/.test(email)
+    },
+    pass(pass) {
+        return /^(?=.*\d)(?=.*[!@#\$%\^&\*_-])(?=.*\w)[\d\w\s]{8,24}$/.test(pass) 
+    },
+    phone(phone) {
+        return /^(\+[\d]{2})?(([\s-]*)(\()?([\s-]*)(\d)([\s-]*)(\d)([\s-]*)(\d)(\))?)(([\s-]*[\d][\s-]*){7})$/.test(phone)
+    },
+    searchField(query) {
+        return /^((?!(.*?\*){2,}|.*? |\*$).*?\*.*)|[a-zA-Z ]{3,30}$/.test(query)
+    }
 }
+
+var plp = (function(my){
+    let url = "http://127.0.0.1:8887/product-feed.json";
+    
+    my.getProducts = async () => await $.ajax(url);
+    
+    my.renderProduct = (clothes, ulSlides) => {
+        let cl = [...clothes];
+        for (let i=0; i < Math.ceil(clothes.length/4); i++) {
+            let li = document.createElement('li');
+            let ul = document.createElement('ul');
+            ul.className = "products-grid text-center";
+            ul.style = "display: flex; padding-left: 0px; ";
+            ulSlides.appendChild(li);
+            li.appendChild(ul);
+            cl.splice(0, 4).map(c => ul.appendChild(c.getProductTileHTML()) );
+        }
+    }
+
+    return my;
+
+})(plp || {});
+
+let render = (arrayProducts, element, sortValue = "title a-z") => {
+    while (element.firstChild) { element.removeChild(element.firstChild); }
+    plp.renderProduct(sortProducts(arrayProducts, ...sortValue.split(" ")), element);
+  }
+
+async function getData() {
+    let data = await plp.getProducts();
+    const clothes = data.map(data => new Clothes(data));
+
+    let ul = document.querySelector("ul.slides");
+
+    plp.renderProduct(clothes, ul);
+
+    let searchInput = document.getElementById('search');
+    let searchError = document.getElementById('search-error');
+    let searchButton= document.getElementById('search-button');
+
+    let selectTitle = document.getElementById('title-select');
+    let selectPrice = document.getElementById('price-select');
+    let selectValue = 'title a-z';
+
+    selectTitle.addEventListener('change', function(e) { 
+        selectValue = e.target.value;
+        render(searchProducts(clothes, searchInput.value), ul, selectValue); 
+    });
+    selectPrice.addEventListener('change', function(e) { 
+        selectValue = e.target.value;
+        render(searchProducts(clothes, searchInput.value), ul, selectValue); 
+    });
+
+    searchInput.addEventListener('keyup', function(e) { 
+        if ( check.searchField(e.target.value) ) {
+            searchButton.disabled = false;
+            searchInput.style = "";
+            searchError.innerText = "";
+            if (searchProducts(clothes, e.target.value).length > 0) 
+                render(searchProducts(clothes, e.target.value), ul);
+            else 
+                ul.innerHTML = "<h3>Nothing found</h3>";
+        } else if (e.target.value == '') {
+            searchButton.disabled = true;
+            searchInput.style = "";
+            searchError.innerText = "";
+            render(clothes, ul);
+            getData();
+        } else {
+            searchButton.disabled = true;
+            searchInput.style = "border-width: 5px; border-color: red;";
+            searchError.innerText = "should be at least 3 letters";
+            render(clothes, ul);
+        }
+    });
+}
+
+getData();
