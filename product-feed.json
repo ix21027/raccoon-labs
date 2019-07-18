@@ -94,7 +94,7 @@
         "ID": 1,
 		"name" : "Some product 1",
         "price": "357.62",
-        "images": ["http://placehold.it/225/549256/594859&text=1"],
+        "images": ["https://placehold.it/225/549256/594859&text=1"],
         "quantity": 4,
         "activeSize": "M",
         "sizes": [
@@ -185,7 +185,7 @@
         "ID": 2,
 		"name" : "Some product 2",
         "price": "49.46",
-        "images": ["http://placehold.it/225/230329/898331&text=2"],
+        "images": ["https://placehold.it/225/230329/898331&text=2"],
         "quantity": 33,
         "activeSize": "XS",
         "sizes": [
@@ -276,7 +276,7 @@
         "ID": 3,
 		"name" : "Cup",
         "price": "319.89",
-        "images": ["http://extensions.favthemes.com/modules/mod_favproducts/demo/demo-image8.jpg"],
+        "images": ["https://extensions.favthemes.com/modules/mod_favproducts/demo/demo-image8.jpg"],
         "quantity": 33,
         "activeSize": "XXL",
         "sizes": [
@@ -367,7 +367,7 @@
         "ID": 4,
 		"name" : "Some product 4",
         "price": "36.67",
-        "images": ["http://placehold.it/225/297312/815292&text=4"],
+        "images": ["https://placehold.it/225/297312/815292&text=4"],
         "quantity": 25,
         "activeSize": "XL",
         "sizes": [
@@ -458,7 +458,7 @@
         "ID": 5,
 		"name" : "Herbaalife Skin Cream",
         "price": "12.17",
-        "images": ["http://az31823.vo.msecnd.net/content/en-us/img/catalog/products/1492_herbalifeskin_basicprogram_normaltodry_400.jpg"],
+        "images": ["https://az31823.vo.msecnd.net/content/en-us/img/catalog/products/1492_herbalifeskin_basicprogram_normaltodry_400.jpg"],
         "quantity": 21,
         "activeSize": "M",
         "sizes": [
@@ -549,7 +549,7 @@
         "ID": 6,
 		"name" : "Bag ClasoCube",
         "price": "323.03",
-        "images": ["http://placehold.it/225/0fcccc/0000&text=rastore"],
+        "images": ["https://placehold.it/225/0fcccc/0000&text=rastore"],
         "quantity": 30,
         "activeSize": "XS",
         "sizes": [
@@ -640,7 +640,7 @@
         "ID": 7,
 		"name" : "blowout hair product",
         "price": "300.58",
-        "images": ["http://placehold.it/225/0fcccc/0000&text=rastore"],
+        "images": ["https://placehold.it/225/0fcccc/0000&text=rastore"],
         "quantity": 12,
         "activeSize": "XS",
         "sizes": [
@@ -731,7 +731,7 @@
         "ID": 8,
 		"name" : "Contour ES Product",
         "price": "239.39",
-        "images": ["http://placehold.it/225/0fcccc/0000&text=rastore"],
+        "images": ["https://placehold.it/225/0fcccc/0000&text=rastore"],
         "quantity": 4,
         "activeSize": "XS",
         "sizes": [
@@ -822,7 +822,7 @@
         "ID": 9,
 		"name" : "Some product 9",
         "price": "220.27",
-        "images": ["http://placehold.it/225/324515/950122&text=9"],
+        "images": ["https://placehold.it/225/324515/950122&text=9"],
         "quantity": 12,
         "activeSize": "M",
         "sizes": [
@@ -1004,7 +1004,7 @@
         "ID": 11,
 		"name" : "Some product 11",
         "price": "380.34",
-        "images": ["http://placehold.it/225/895683/220217&text=11"],
+        "images": ["https://placehold.it/225/895683/220217&text=11"],
         "quantity": 30,
         "activeSize": "XL",
         "sizes": [
@@ -1095,7 +1095,7 @@
         "ID": 12,
 		"name" : "Some product 12",
         "price": "33.88",
-        "images": ["http://placehold.it/225/893973/953280&text=12"],
+        "images": ["https://placehold.it/225/893973/953280&text=12"],
         "quantity": 10,
         "activeSize": "XL",
         "sizes": [
@@ -1186,7 +1186,7 @@
         "ID": 13,
 		"name" : "Some product 13",
         "price": "323.50",
-        "images": ["http://placehold.it/225/436817/167530&text=13"],
+        "images": ["https://placehold.it/225/436817/167530&text=13"],
         "quantity": 11,
         "activeSize": "XS",
         "sizes": [
@@ -1277,7 +1277,7 @@
         "ID": 14,
 		"name" : "Some product 14",
         "price": "145.71",
-        "images": ["http://placehold.it/225/28405/848761&text=14"],
+        "images": ["https://placehold.it/225/28405/848761&text=14"],
         "quantity": 8,
         "activeSize": "XS",
         "sizes": [
@@ -1368,7 +1368,7 @@
         "ID": 15,
 		"name" : "Some product 15",
         "price": "333.63",
-        "images": ["http://placehold.it/225/672728/29442&text=15"],
+        "images": ["https://placehold.it/225/672728/29442&text=15"],
         "quantity": 19,
         "activeSize": "M",
         "sizes": [
@@ -1732,7 +1732,7 @@
         "ID": 19,
 		"name" : "Whistles",
         "price": "344.37",
-        "images": ["http://placehold.it/225/0fcccc/0000&text=rastore"],
+        "images": ["https://placehold.it/225/0fcccc/0000&text=rastore"],
         "quantity": 31,
         "activeSize": "XXL",
         "sizes": [
@@ -1914,7 +1914,7 @@
         "ID": 21,
 		"name" : "Some product 21",
         "price": "192.11",
-        "images": ["http://placehold.it/225/28037/50770&text=21"],
+        "images": ["https://placehold.it/225/28037/50770&text=21"],
         "quantity": 6,
         "activeSize": "M",
         "sizes": [
@@ -2005,7 +2005,7 @@
         "ID": 22,
 		"name" : "Some product 22",
         "price": "61.92",
-        "images": ["http://placehold.it/225/682579/815924&text=22"],
+        "images": ["https://placehold.it/225/682579/815924&text=22"],
         "quantity": 14,
         "activeSize": "XS",
         "sizes": [
@@ -2096,7 +2096,7 @@
         "ID": 23,
 		"name" : "Adidas Sweatshirt",
         "price": "71.20",
-        "images": ["http://www.tonystreets.lt/application/images/Image/apranga/dzemperiai/adidas/crew/.vpb_adidas-Originals-Classic-Trefoil-Crew-Sweatshirt-AZ1130-5.jpg"],
+        "images": ["https://i.pinimg.com/736x/87/cb/48/87cb481e4ca24a40006f7131606afb0e--adidas-clothes-mens-hoodies.jpg"],
         "quantity": 11,
         "activeSize": "XL",
         "sizes": [
@@ -2187,7 +2187,7 @@
         "ID": 24,
 		"name" : "Some product 24",
         "price": "242.93",
-        "images": ["http://placehold.it/225/18420/730998&text=24"],
+        "images": ["https://placehold.it/225/18420/730998&text=24"],
         "quantity": 34,
         "activeSize": "L",
         "sizes": [
@@ -2369,7 +2369,7 @@
         "ID": 26,
 		"name" : "Adidas Product",
         "price": "48.93",
-        "images": ["http://placehold.it/225/0fcccc/0000&text=rastore"],
+        "images": ["https://placehold.it/225/0fcccc/0000&text=rastore"],
         "quantity": 33,
         "activeSize": "XS",
         "sizes": [
@@ -2642,7 +2642,7 @@
         "ID": 29,
 		"name" : "Curly T-shirt",
         "price": "332.08",
-        "images": ["http://nba.frgimages.com/FFImage/thumb.aspx?i=/productImages%2F_580000%2Fff_580896_xl.jpg&w=400"],
+        "images": ["https://nba.frgimages.com/FFImage/thumb.aspx?i=/productImages%2F_580000%2Fff_580896_xl.jpg&w=400"],
         "quantity": 8,
         "activeSize": "L",
         "sizes": [

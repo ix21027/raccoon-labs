@@ -45,20 +45,19 @@ class AbstractProduct {
         this.setPrice       = (price) => { if (parseFloat(price) >= 0) _price = price }    
         
         this.getterSetter = (data = "getName") => {  //* {setterName: argument} or "getterName"
-            if (typeof data == "string")
-                return this[data];
-            if (typeof data == "object"){
-                for (const [setter, arg] of Object.entries(data)) {
-                    if(setter === "price") { 
-                        if (parseFloat(arg) >= 0){
-                            _price = arg;
-                            continue;
-                        } else {
-                            throw new Error("price should be bigger or equal then 0")
-                        } 
-                    }   
-                    this[setter] = arg;
+        if (typeof data == "string")
+            return this[data];
+        if (typeof data == "object")
+            for (const [setter, arg] of Object.entries(data)) {
+                if(setter === "price") { 
+                    if (parseFloat(arg) >= 0){
+                        _price = arg;
+                        continue;
+                    } else {
+                        throw new Error("price should be bigger or equal then 0")
+                    } 
                 }
+                this[setter] = arg;
             }   
         } 
         this.getProductTileHTML = () => {
@@ -91,6 +90,7 @@ class AbstractProduct {
             productOverlayDIV.className = "product-overlay";
             productOverlayANCOR.href = '#';
             productOverlayAncorIMG.src= _images;
+            productOverlayAncorIMG.className = 'backup_picture';
             productOverlayAncorIMG.alt = _name;
             productOverlayAncorIMG.height = 225;
             productOverlayAncorIMG.width = 225;
@@ -162,7 +162,7 @@ class AbstractProduct {
         
 }
 
-let searchProducts = (products, query) => products.filter(p => p.getName().toLowerCase().includes(query.toLowerCase()) || p.getDescription().toLowerCase().includes(query.toLowerCase()));
+let searchProducts = (products, query) => products.filter(p => p.getName().toLowerCase().includes(query) || p.getDescription().toLowerCase().includes(query));
 let sortProducts = (products, sortRule = "price", prefix = "l-h") => {
     if (sortRule === "price" && prefix == "l-h") {
         return products.sort( (a,b) => parseFloat( a.getPrice() ) - parseFloat( b.getPrice() ) );
@@ -303,12 +303,12 @@ const check = {
         return /^(\+[\d]{2})?(([\s-]*)(\()?([\s-]*)(\d)([\s-]*)(\d)([\s-]*)(\d)(\))?)(([\s-]*[\d][\s-]*){7})$/.test(phone)
     },
     searchField(query) {
-        return /^((?!(.*?\*){2,}|.*? |\*$).*?\*.*)|[a-zA-Z ]{3,30}$/.test(query)
+        return /^((?!(.*?\*){2,}|.*? |\*$).*?\*.*)|[a-zA-Zа-яА-Я ]{3,30}$/.test(query)
     }
 }
 
 var plp = (function(my){
-    let url = "http://127.0.0.1:8887/product-feed.json";
+    let url = "./product-feed.json";
     
     my.getProducts = async () => await $.ajax(url);
     
